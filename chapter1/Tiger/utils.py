@@ -11,13 +11,13 @@ import numpy as np
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--annotations_path',
-                        default='/home/enningxie/Documents/DataSets/butterfly/butt_train/train_set/Annotations')
+                        default='/home/ck/butterfly/butt_train/train_set/Annotations')
     parser.add_argument('--new_annotations_path',
-                        default='/home/enningxie/Documents/DataSets/butterfly/butt_train/train_set/annotations')
+                        default='/home/ck/butterfly/butt_train/train_set/annotations')
     parser.add_argument('--class_path',
-                        default='/home/enningxie/Documents/DataSets/butterfly/butt_train/class.csv')
+                        default='/home/ck/butterfly/butt_train/class.csv')
     parser.add_argument('--image_path',
-                        default='/home/enningxie/Documents/DataSets/butterfly/butt_train/train_set/JPEGImages')
+                        default='/home/ck/butterfly/butt_train/train_set/JPEGImages')
     return parser.parse_args()
 
 
