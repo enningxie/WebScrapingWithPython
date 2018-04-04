@@ -11,6 +11,7 @@ import numpy as np
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--annotations_path',
+<<<<<<< HEAD
                         default='/home/ck/butterfly/butt_train/train_set/Annotations')
     parser.add_argument('--new_annotations_path',
                         default='/home/ck/butterfly/butt_train/train_set/annotations')
@@ -18,6 +19,15 @@ def parse():
                         default='/home/ck/butterfly/butt_train/class.csv')
     parser.add_argument('--image_path',
                         default='/home/ck/butterfly/butt_train/train_set/JPEGImages')
+=======
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/Annotations')
+    parser.add_argument('--new_annotations_path',
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/annotations')
+    parser.add_argument('--class_path',
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/class_new.csv')
+    parser.add_argument('--image_path',
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/JPEGImages')
+>>>>>>> 9bcf174f085e2069c081e1111983c30c98453173
     return parser.parse_args()
 
 
@@ -45,21 +55,22 @@ def rename_files(path, new_path, image_path, pd_data):
         count = classes_dict.setdefault(ids, 0)
         count += 1
         classes_dict[ids] = count
-        ids = ids + '_' + str(count)
-        new_image_name = ids + '.jpg'
+        ids_ = ids + '_' + str(count)
+        new_image_name = ids_ + '.jpg'
         root[1].text = new_image_name
+        # 02
+        for i in tmp_xml.findall('./object'):
+            i[0].text = ids
         make_dir(new_path)
         # rename image
         os.rename(os.path.join(image_path, img_name), os.path.join(image_path, new_image_name))
         # rename xml
-        tmp_xml.write(os.path.join(new_path, ids + '.xml'), encoding='utf-8')
-
+        tmp_xml.write(os.path.join(new_path, ids_ + '.xml'), encoding='utf-8')
 
 
 def make_dir(path):
     if not os.path.exists(path):
         os.mkdir(path)
-
 
 
 # png convert to jpg
@@ -71,7 +82,7 @@ def png_to_jpg(source_file, to_file):
 
 # given classes return ids
 def get_ids(pd_data, class_name):
-    return pd_data[pd_data.classes == class_name]['ids'].values[0]
+    return pd_data[pd_data.classes == class_name]['new_ids'].values[0]
 
 
 def test_write_xml(path, args):
@@ -90,7 +101,20 @@ def test_png_to_jpg(path):
     print('done.')
 
 
+def test_xml(path):
+    test_xml_ = ET.parse(path)
+    root = test_xml_.getroot()
+    print(root[1].text)
+    for i in test_xml_.findall('./object'):
+        print(i[0].text)
+
+
+
 if __name__ == '__main__':
     args = parse()
     sp = Some_path(args)
     rename_files(sp.annotations_path, sp.new_annotations_path, sp.image_path, sp.classes_pd)
+<<<<<<< HEAD
+=======
+    # test_xml('/home/enningxie/Documents/test.xml')
+>>>>>>> 9bcf174f085e2069c081e1111983c30c98453173
