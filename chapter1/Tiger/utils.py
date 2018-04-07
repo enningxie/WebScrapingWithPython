@@ -11,6 +11,15 @@ import numpy as np
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--annotations_path',
+<<<<<<< HEAD
+                        default='/home/ck/butterfly/butt_train/train_set/Annotations')
+    parser.add_argument('--new_annotations_path',
+                        default='/home/ck/butterfly/butt_train/train_set/annotations')
+    parser.add_argument('--class_path',
+                        default='/home/ck/butterfly/butt_train/class.csv')
+    parser.add_argument('--image_path',
+                        default='/home/ck/butterfly/butt_train/train_set/JPEGImages')
+=======
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/Annotations')
     parser.add_argument('--new_annotations_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/annotations')
@@ -18,6 +27,7 @@ def parse():
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/class_new.csv')
     parser.add_argument('--image_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/JPEGImages')
+>>>>>>> 9bcf174f085e2069c081e1111983c30c98453173
     return parser.parse_args()
 
 
@@ -103,4 +113,7 @@ if __name__ == '__main__':
     args = parse()
     sp = Some_path(args)
     rename_files(sp.annotations_path, sp.new_annotations_path, sp.image_path, sp.classes_pd)
+<<<<<<< HEAD
+=======
     # test_xml('/home/enningxie/Documents/test.xml')
+>>>>>>> 9bcf174f085e2069c081e1111983c30c98453173
