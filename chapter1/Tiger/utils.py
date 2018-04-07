@@ -99,7 +99,6 @@ def test_xml(path):
         print(i[0].text)
 
 
-
 if __name__ == '__main__':
     args = parse()
     sp = Some_path(args)
