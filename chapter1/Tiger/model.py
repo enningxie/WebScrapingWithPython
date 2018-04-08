@@ -55,7 +55,7 @@ class Model(object):
                                  trainable=False, name='global_step')
         self.training = True
         self.skip_step = 5
-        self.n_test = 545
+        self.n_test = 20
         self.batch_size = 32
         self.n_classes = 94
 
@@ -107,8 +107,9 @@ class Model(object):
         '''
         with tf.name_scope('predict'):
             preds = tf.nn.softmax(self.logits)
-            correct_preds = tf.equal(tf.argmax(preds, 1), self.label)
-            self.accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
+            # correct_preds = tf.equal(tf.argmax(preds, 1), self.label)
+            # self.accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
+            self.accuracy = tf.metrics.average_precision_at_k(self.label, tf.argmax(preds, 1), 94)
 
     def build(self):
         '''
