@@ -5,29 +5,22 @@ import os
 import pandas as pd
 from PIL import Image
 import numpy as np
+import tensorflow as tf
 
 
 # parse
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--annotations_path',
-<<<<<<< HEAD
-                        default='/home/ck/butterfly/butt_train/train_set/Annotations')
-    parser.add_argument('--new_annotations_path',
-                        default='/home/ck/butterfly/butt_train/train_set/annotations')
-    parser.add_argument('--class_path',
-                        default='/home/ck/butterfly/butt_train/class.csv')
-    parser.add_argument('--image_path',
-                        default='/home/ck/butterfly/butt_train/train_set/JPEGImages')
-=======
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/Annotations')
     parser.add_argument('--new_annotations_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/annotations')
     parser.add_argument('--class_path',
-                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/class_new.csv')
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/classes_new_03.csv')
     parser.add_argument('--image_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/JPEGImages')
->>>>>>> 9bcf174f085e2069c081e1111983c30c98453173
+    parser.add_argument('--image_for_classify',
+                        default='/home/enningxie/Documents/DataSets/crop_img')
     return parser.parse_args()
 
 
@@ -36,7 +29,11 @@ class Some_path(object):
         self.annotations_path = args.annotations_path
         self.new_annotations_path = args.new_annotations_path
         self.image_path = args.image_path
+        self.image_for_classify = args.image_for_classify
         self.classes_pd = pd.read_csv(args.class_path)
+
+args = parse()
+s = Some_path(args)
 
 
 # read .xml
@@ -109,11 +106,49 @@ def test_xml(path):
         print(i[0].text)
 
 
-if __name__ == '__main__':
-    args = parse()
-    sp = Some_path(args)
-    rename_files(sp.annotations_path, sp.new_annotations_path, sp.image_path, sp.classes_pd)
-<<<<<<< HEAD
-=======
-    # test_xml('/home/enningxie/Documents/test.xml')
->>>>>>> 9bcf174f085e2069c081e1111983c30c98453173
+# process image for classify
+def _create_feature_label(path):
+    classes_data = s.classes_pd
+    fnames = []
+    labels = []
+    for image_name in os.listdir(path):
+        class_ = image_name.split('_')[0]
+        labels.append(int(classes_data[classes_data['new_ids'] == class_]['classes_num']))
+        fnames.append(os.path.join(path, image_name))
+    fnames = np.asarray(fnames)
+    labels = np.asarray(labels)
+    order = np.arange(len(labels))
+    np.random.shuffle(order)
+    fnames = fnames[order]
+    labels = labels[order]
+    return fnames, labels
+
+
+def _parse_cell_image(filename, label):
+    image_string = tf.read_file(filename)
+    image_decoded = tf.image.decode_jpeg(image_string)
+    image_resized = tf.image.resize_images(image_decoded, [1000, 1000])
+    return image_resized, label
+
+
+def _create_dataset(data, label, batch_size):
+    filenames = tf.constant(data)
+    labels = tf.constant(label)
+    dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
+    dataset = dataset.map(_parse_cell_image)
+    dataset = dataset.batch(batch_size)
+    return dataset
+
+
+def process_data(batch_size):
+    train_data = _create_feature_label(s.image_for_classify)[0][:-20]
+    train_data_labels = _create_feature_label(s.image_for_classify)[1][:-20]
+
+    test_data = _create_feature_label(s.image_for_classify)[0][-20:]
+    test_data_labels = _create_feature_label(s.image_for_classify)[1][-20:]
+    # print(len(test_data[0]))
+    train_dataset = _create_dataset(train_data, train_data_labels, batch_size)
+    test_dataset = _create_dataset(test_data, test_data_labels, batch_size)
+
+    return train_dataset, test_dataset
+
