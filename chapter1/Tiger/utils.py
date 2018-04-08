@@ -16,11 +16,11 @@ def parse():
     parser.add_argument('--new_annotations_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/annotations')
     parser.add_argument('--class_path',
-                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/classes_new_03.csv')
+                        default='/var/Data/xz/butterfly/classes_new_03.csv')
     parser.add_argument('--image_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/JPEGImages')
     parser.add_argument('--image_for_classify',
-                        default='/home/enningxie/Documents/DataSets/crop_img')
+                        default='/var/Data/xz/butterfly/crop_img')
     return parser.parse_args()
 
 
