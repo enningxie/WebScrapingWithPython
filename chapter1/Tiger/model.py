@@ -109,7 +109,7 @@ class Model(object):
             preds = tf.nn.softmax(self.logits)
             # correct_preds = tf.equal(tf.argmax(preds, 1), self.label)
             # self.accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
-            self.accuracy = average_precision_score(self.label, tf.argmax(preds, 1))
+            _, self.accuracy = tf.metrics.average_precision_at_k(self.label, tf.argmax(preds, 1), 94)
 
     def build(self):
         '''
