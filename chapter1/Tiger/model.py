@@ -58,7 +58,7 @@ class Model(object):
         self.training = True
         self.skip_step = 5
         self.n_test = 20
-        self.batch_size = 32
+        self.batch_size = 64
         self.n_classes = 94
 
     def get_data(self):
@@ -67,7 +67,7 @@ class Model(object):
             iterator = tf.data.Iterator.from_structure(train_data.output_types,
                                                        train_data.output_shapes)
             img, self.label = iterator.get_next()
-            self.img = tf.reshape(img, shape=[-1, 1000, 1000, 3])
+            self.img = tf.reshape(img, shape=[-1, 500, 500, 3])
             # reshape the image to make it work with tf.nn.conv2d
 
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
@@ -147,7 +147,6 @@ class Model(object):
     def eval_once(self, sess, init, epoch, step):
         start_time = time.time()
         sess.run(init)
-        sess.run(tf.global_variables_initializer())
         self.training = False
         total_correct_preds = 0
         try:
