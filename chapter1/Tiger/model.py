@@ -151,7 +151,7 @@ class Model(object):
         total_correct_preds = 0
         try:
             while True:
-                accuracy_batch, _ = sess.run([self.accuracy, self.accuracy_op])
+                _, accuracy_batch = sess.run([self.accuracy_op, self.accuracy])
 
         except tf.errors.OutOfRangeError:
             pass
