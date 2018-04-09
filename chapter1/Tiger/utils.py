@@ -127,7 +127,7 @@ def _create_feature_label(path):
 def _parse_cell_image(filename, label):
     image_string = tf.read_file(filename)
     image_decoded = tf.image.decode_jpeg(image_string)
-    image_resized = tf.image.resize_images(image_decoded, [1000, 1000])
+    image_resized = tf.image.resize_images(image_decoded, [500, 500])
     return image_resized, label
 
 
