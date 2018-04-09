@@ -5,6 +5,8 @@ import argparse
 import time
 from sklearn.metrics import average_precision_score
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 # parse_params
 def parse_args():
@@ -109,7 +111,7 @@ class Model(object):
             preds = tf.nn.softmax(self.logits)
             # correct_preds = tf.equal(tf.argmax(preds, 1), self.label)
             # self.accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
-            _, self.accuracy = tf.metrics.average_precision_at_k(self.label, preds, 94)
+            self.accuracy, self.accuracy_op = tf.metrics.average_precision_at_k(self.label, preds, 94)
 
     def build(self):
         '''
@@ -145,17 +147,17 @@ class Model(object):
     def eval_once(self, sess, init, epoch, step):
         start_time = time.time()
         sess.run(init)
+        sess.run(tf.global_variables_initializer())
         self.training = False
         total_correct_preds = 0
         try:
             while True:
-                accuracy_batch= sess.run(self.accuracy)
+                accuracy_batch, _ = sess.run([self.accuracy, self.accuracy_op])
 
-                total_correct_preds += accuracy_batch
         except tf.errors.OutOfRangeError:
             pass
 
-        print('Accuracy at epoch {0}: {1} '.format(epoch, total_correct_preds / self.n_test))
+        print('Accuracy at epoch {0}: {1} '.format(epoch, accuracy_batch))
         print('Took: {0} seconds'.format(time.time() - start_time))
 
     def train(self, n_epochs):
@@ -167,6 +169,7 @@ class Model(object):
             step = self.gstep.eval()
 
             for epoch in range(n_epochs):
+                sess.run(tf.local_variables_initializer())
                 step = self.train_one_epoch(sess, self.train_init, epoch, step)
                 self.eval_once(sess, self.test_init, epoch, step)
 
