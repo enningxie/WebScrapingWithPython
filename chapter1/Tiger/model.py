@@ -141,7 +141,6 @@ class Model(object):
         except tf.errors.OutOfRangeError:
             pass
         print('Average loss at epoch {0}: {1}'.format(epoch, total_loss / n_batches))
-        print('Took: {0} seconds'.format(time.time() - start_time))
         return step
 
     def eval_once(self, sess, init, epoch, step):
@@ -157,7 +156,6 @@ class Model(object):
             pass
 
         print('Accuracy at epoch {0}: {1} '.format(epoch, accuracy_batch))
-        print('Took: {0} seconds'.format(time.time() - start_time))
 
     def train(self, n_epochs):
         '''
@@ -177,4 +175,4 @@ if __name__ == '__main__':
     args = parse_args()
     model = Model(args)
     model.build()
-    model.train(n_epochs=5)
+    model.train(n_epochs=50)
