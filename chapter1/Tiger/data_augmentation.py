@@ -8,7 +8,7 @@ import argparse
 from math import pi
 from PIL import Image
 import os
-import cv2
+# import cv2
 
 
 IMAGE_SIZE = 500
@@ -17,6 +17,10 @@ IMAGES = 4
 
 def arg_parse():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--file_path_', type=str,
+                        default=r'D:\DataSets\crop_img\crop_img')
+    parser.add_argument('--img_png', type=str,
+                        default=r'D:\DataSets\crop_img\img_png')
     parser.add_argument('--file_path', type=str, default='/home/enningxie/Documents/DataSets/butterfly_/data_augmentation')
     parser.add_argument('--process_data', type=str, default='/home/enningxie/Documents/DataSets/butterfly_/process_data')
     return parser.parse_args()
@@ -37,16 +41,18 @@ def img_save_op(img_data, path, step):
     print('done.')
 
 
-def convert_jpg_to_png(path):
+def convert_jpg_to_png(path, to_path):
     for filename in os.listdir(path):
         if os.path.splitext(filename)[-1] == '.jpg':
             # print(filename)
-            img = cv2.imread(path + filename)
-            # print(filename.replace(".jpg", ".png"))
+            img = Image.open(path + '\\' + filename)
+            # # print(filename.replace(".jpg", ".png"))
             newfilename = filename.replace(".jpg", ".png")
-            # cv2.imshow("Image",img)
-            # cv2.waitKey(0)
-            cv2.imwrite(path + newfilename, img)
+            img.save(to_path + '\\' + newfilename)
+    print('done.')
+            # # cv2.imshow("Image",img)
+            # # cv2.waitKey(0)
+            # cv2.imwrite(FLAGS.file_path + newfilename, img)
 
 
 # resize the images
@@ -284,7 +290,7 @@ def perspective_transform(X_img):
 
 if __name__ == '__main__':
     FLAGS = arg_parse()
-    path = img_file_path(FLAGS.file_path)
+    # path = img_file_path(FLAGS.file_path)
     # X_imgs = tf_resize_images(path)
     # step 0: resize
     # img_save_op(X_imgs, FLAGS.process_data, 0)
@@ -315,15 +321,7 @@ if __name__ == '__main__':
     # perspective_img = perspective_transform(X_imgs[0])
     # img_save_op(perspective_img, FLAGS.process_data, 8)
     # step -1
-    # convert_jpg_to_png()
-    for filename in os.listdir(FLAGS.file_path):
-        if os.path.splitext(filename)[-1] == '.jpg':
-            # print(filename)
-            img = cv2.imread(FLAGS.file_path + filename)
-            # # print(filename.replace(".jpg", ".png"))
-            newfilename = filename.replace(".jpg", "0.png")
-            # # cv2.imshow("Image",img)
-            # # cv2.waitKey(0)
-            cv2.imwrite(FLAGS.file_path + newfilename, img)
+    convert_jpg_to_png(FLAGS.file_path_, FLAGS.img_png)
+
 
 
