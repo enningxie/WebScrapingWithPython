@@ -39,7 +39,7 @@ def img_save_op(img_data, path, step):
 
 def convert_jpg_to_png(path):
     for filename in os.listdir(path):
-        if os.path.splitext(filename)[1] == '.jpg':
+        if os.path.splitext(filename)[-1] == '.jpg':
             # print(filename)
             img = cv2.imread(path + filename)
             # print(filename.replace(".jpg", ".png"))
@@ -285,7 +285,7 @@ def perspective_transform(X_img):
 if __name__ == '__main__':
     FLAGS = arg_parse()
     path = img_file_path(FLAGS.file_path)
-    X_imgs = tf_resize_images(path)
+    # X_imgs = tf_resize_images(path)
     # step 0: resize
     # img_save_op(X_imgs, FLAGS.process_data, 0)
     # # step 1: scale
@@ -315,6 +315,15 @@ if __name__ == '__main__':
     # perspective_img = perspective_transform(X_imgs[0])
     # img_save_op(perspective_img, FLAGS.process_data, 8)
     # step -1
-    # convert_jpg_to_png(FLAGS.file_path)
+    # convert_jpg_to_png()
+    for filename in os.listdir(FLAGS.file_path):
+        if os.path.splitext(filename)[-1] == '.jpg':
+            # print(filename)
+            img = cv2.imread(FLAGS.file_path + filename)
+            # # print(filename.replace(".jpg", ".png"))
+            newfilename = filename.replace(".jpg", "0.png")
+            # # cv2.imshow("Image",img)
+            # # cv2.waitKey(0)
+            cv2.imwrite(FLAGS.file_path + newfilename, img)
 
 
