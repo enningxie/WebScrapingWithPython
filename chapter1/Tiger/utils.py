@@ -7,6 +7,9 @@ from PIL import Image
 import tensorflow as tf
 import matplotlib.image as mpimg
 import numpy as np
+from sklearn.model_selection import train_test_split
+
+RANDOM_STATE = 42
 
 
 # parse
@@ -17,11 +20,11 @@ def parse():
     parser.add_argument('--new_annotations_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/annotations')
     parser.add_argument('--class_path',
-                        default='/var/Data/xz/butterfly/classes_new_03.csv')
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/classes_new_03.csv')
     parser.add_argument('--image_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/JPEGImages')
     parser.add_argument('--image_for_classify',
-                        default='/var/Data/xz/butterfly/crop_img')
+                        default='/home/enningxie/Documents/DataSets/data_augmentation')
     return parser.parse_args()
 
 
@@ -128,7 +131,7 @@ def _create_feature_label(path):
 def _parse_cell_image(filename, label):
     image_string = tf.read_file(filename)
     image_decoded = tf.image.decode_jpeg(image_string)
-    image_resized = tf.image.resize_images(image_decoded, [500, 500])
+    image_resized = tf.image.resize_images(image_decoded, [224, 224])
     return image_resized, label
 
 
@@ -142,17 +145,14 @@ def _create_dataset(data, label, batch_size):
 
 
 def process_data(batch_size):
-    train_data = _create_feature_label(s.image_for_classify)[0][:-20]
-    train_data_labels = _create_feature_label(s.image_for_classify)[1][:-20]
+    X, Y = _create_feature_label(s.image_for_classify)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=RANDOM_STATE)
 
-    test_data = _create_feature_label(s.image_for_classify)[0][-20:]
-    test_data_labels = _create_feature_label(s.image_for_classify)[1][-20:]
-    # print(len(test_data[0]))
-    train_dataset = _create_dataset(train_data, train_data_labels, batch_size)
-    test_dataset = _create_dataset(test_data, test_data_labels, batch_size)
+    # # print(len(test_data[0]))
+    train_dataset = _create_dataset(x_train, y_train, batch_size)
+    test_dataset = _create_dataset(x_test, y_test, batch_size)
 
     return train_dataset, test_dataset
-
 
 
 

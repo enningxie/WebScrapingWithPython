@@ -30,7 +30,7 @@ def conv_op(inputs, filters, ksize, stride, scope_name, activation=True, padding
 
 
 # raw max_pool_op
-def max_pool_op(inputs, ksize, stride, scope_name, padding='VALID'):
+def max_pool_op(inputs, ksize, stride, scope_name, padding='SAME'):
     with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
         pool = tf.nn.max_pool(inputs, ksize=[1, ksize, ksize, 1], strides=[1, stride, stride, 1], padding=padding)
     return pool
@@ -58,7 +58,7 @@ class Model(object):
         self.training = True
         self.skip_step = 5
         self.n_test = 20
-        self.batch_size = 64
+        self.batch_size = 256
         self.n_classes = 94
 
     def get_data(self):
@@ -78,15 +78,90 @@ class Model(object):
 
     def inference(self):
 
+        conv1 = conv_op(inputs=self.img,
+                           filters=64,
+                           ksize=3,
+                           stride=1,
+                           scope_name='conv1')
+
+        # maxpool1
+        pool1 = max_pool_op(inputs=conv1,
+                        ksize=2,
+                        stride=2,
+                        scope_name='pool1')
+
+        conv2 = conv_op(inputs=pool1,
+                        filters=128,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv2')
+
+        pool2 = max_pool_op(inputs=conv2,
+                            ksize=2,
+                            stride=2,
+                            scope_name='pool2')
+
+        conv3 = conv_op(inputs=pool2,
+                        filters=256,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv3')
+
+        conv4 = conv_op(inputs=conv3,
+                        filters=256,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv4')
+
+        pool3 = max_pool_op(inputs=conv4,
+                            ksize=2,
+                            stride=2,
+                            scope_name='pool3')
+
+        conv5 = conv_op(inputs=pool3,
+                        filters=512,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv5')
+
+        conv6 = conv_op(inputs=conv5,
+                        filters=512,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv6')
+
+        pool4 = max_pool_op(inputs=conv6,
+                            ksize=2,
+                            stride=2,
+                            scope_name='pool4')
+
+        conv7 = conv_op(inputs=pool4,
+                        filters=512,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv7')
+
+        conv8 = conv_op(inputs=conv7,
+                        filters=512,
+                        ksize=3,
+                        stride=1,
+                        scope_name='conv8')
+
+        pool5 = max_pool_op(inputs=conv8,
+                            ksize=2,
+                            stride=2,
+                            scope_name='pool5')
+
+
         # ---------------------------------------------------
-        tmp_shape = self.img.get_shape().as_list()
+        tmp_shape = pool5.get_shape().as_list()
         fc1_input = tf.reshape(self.img, [-1, tmp_shape[1] * tmp_shape[2] * tmp_shape[3]])
         fc1 = connect_op(inputs=fc1_input,
-                         dim_out=128,
+                         dim_out=4096,
                               scope_name='fc1')
         # ---------------------------------------------------
         fc2 = connect_op(inputs=fc1,
-                         dim_out=64,
+                         dim_out=4096,
                               scope_name='fc2')
         # ---------------------------------------------------
         self.logits = connect_op(inputs=fc2,
