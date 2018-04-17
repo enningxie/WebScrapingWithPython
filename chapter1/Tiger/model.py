@@ -66,8 +66,8 @@ class Model(object):
             train_data, test_data = utils.process_data(self.batch_size)
             iterator = tf.data.Iterator.from_structure(train_data.output_types,
                                                        train_data.output_shapes)
-            img, self.label = iterator.get_next()
-            self.img = tf.reshape(img, shape=[-1, 500, 500, 3])
+            self.img, self.label = iterator.get_next()
+            
             # reshape the image to make it work with tf.nn.conv2d
 
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
