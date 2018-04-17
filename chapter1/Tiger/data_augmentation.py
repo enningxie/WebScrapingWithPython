@@ -25,8 +25,8 @@ def arg_parse():
                         default='/home/enningxie/Documents/DataSets/butterfly_/test_path')
     parser.add_argument('--test_convert', type=str,
                         default='/home/enningxie/Documents/DataSets/butterfly_/test_convert')
-    parser.add_argument('--file_path', type=str, default='/home/enningxie/Documents/DataSets/butterfly_/process_data')
-    parser.add_argument('--process_data', type=str, default='/home/enningxie/Documents/DataSets/butterfly_/data_augmentation')
+    parser.add_argument('--file_path', type=str, default='/var/Data/xz/butterfly/process_data')
+    parser.add_argument('--process_data', type=str, default='/var/Data/xz/butterfly/data_augmentation')
     return parser.parse_args()
 
 
