@@ -67,7 +67,7 @@ class Model(object):
             iterator = tf.data.Iterator.from_structure(train_data.output_types,
                                                        train_data.output_shapes)
             img, self.label = iterator.get_next()
-            self.img = tf.reshape(img, shape=[-1, 224, 224, 3])
+            self.img = tf.reshape(img, shape=[-1, 224, 224, 4])
             # reshape the image to make it work with tf.nn.conv2d
 
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
@@ -174,12 +174,12 @@ class Model(object):
         tmp_shape = pool5.get_shape().as_list()
         fc1_input = tf.reshape(pool5, [-1, tmp_shape[1] * tmp_shape[2] * tmp_shape[3]])
         fc1 = connect_op(inputs=fc1_input,
-                         dim_out=4096,
+                         dim_out=1024,
                               scope_name='fc1')
         self.print_info(fc1)
         # ---------------------------------------------------
         fc2 = connect_op(inputs=fc1,
-                         dim_out=4096,
+                         dim_out=1024,
                               scope_name='fc2')
         self.print_info(fc2)
         # ---------------------------------------------------
