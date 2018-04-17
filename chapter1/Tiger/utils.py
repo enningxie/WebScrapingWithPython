@@ -4,8 +4,9 @@ import argparse
 import os
 import pandas as pd
 from PIL import Image
-import numpy as np
 import tensorflow as tf
+import matplotlib.image as mpimg
+import numpy as np
 
 
 # parse
@@ -151,4 +152,29 @@ def process_data(batch_size):
     test_dataset = _create_dataset(test_data, test_data_labels, batch_size)
 
     return train_dataset, test_dataset
+
+
+IMAGE_SIZE = 500
+
+
+def tf_resize_images(X_img_file_paths):
+    X_data = []
+    tf.reset_default_graph()
+    X = tf.placeholder(tf.float32, (None, None, 3))
+    tf_img = tf.image.resize_images(X, (IMAGE_SIZE, IMAGE_SIZE),
+                                    tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+
+        # Each image is resized individually as different image may be of different size.
+        for index, file_path in enumerate(X_img_file_paths):
+            img = mpimg.imread(file_path)[:, :, :3]  # Do not read alpha channel.
+            resized_img = sess.run(tf_img, feed_dict={X: img})
+            X_data.append(resized_img)
+
+    X_data = np.array(X_data, dtype=np.float32)  # Convert to numpy
+    return X_data
+
+if __name__ == '__main__':
+    pass
 

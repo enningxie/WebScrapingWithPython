@@ -148,14 +148,17 @@ class Model(object):
         sess.run(init)
         self.training = False
         total_correct_preds = 0
+        n_batches = 0
         try:
             while True:
-                _, accuracy_batch = sess.run([self.accuracy_op, self.accuracy])
-
+                accuracy_batch, _ = sess.run([self.accuracy, self.accuracy_op])
+                total_correct_preds += accuracy_batch
+                n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
 
         print('Accuracy at epoch {0}: {1} '.format(epoch, accuracy_batch))
+        print('Accuracy at epoch {0}: {1} '.format(epoch, total_correct_preds/n_batches))
 
     def train(self, n_epochs):
         '''
@@ -168,7 +171,7 @@ class Model(object):
             for epoch in range(n_epochs):
                 sess.run(tf.local_variables_initializer())
                 step = self.train_one_epoch(sess, self.train_init, epoch, step)
-                self.eval_once(sess, self.test_init, epoch, step)
+                self.eval_once(sess, self.train_init, epoch, step)
 
 
 if __name__ == '__main__':
