@@ -84,11 +84,15 @@ class Model(object):
                            stride=1,
                            scope_name='conv1')
 
+        print_info(conv1)
+
         # maxpool1
         pool1 = max_pool_op(inputs=conv1,
                         ksize=2,
                         stride=2,
                         scope_name='pool1')
+
+        print_info(pool1)
 
         conv2 = conv_op(inputs=pool1,
                         filters=128,
@@ -96,61 +100,74 @@ class Model(object):
                         stride=1,
                         scope_name='conv2')
 
+        print_info(conv2)
+
         pool2 = max_pool_op(inputs=conv2,
                             ksize=2,
                             stride=2,
                             scope_name='pool2')
+
+        print_info(pool2)
 
         conv3 = conv_op(inputs=pool2,
                         filters=256,
                         ksize=3,
                         stride=1,
                         scope_name='conv3')
+        print_info(conv3)
 
         conv4 = conv_op(inputs=conv3,
                         filters=256,
                         ksize=3,
                         stride=1,
                         scope_name='conv4')
+        print_info(conv4)
 
         pool3 = max_pool_op(inputs=conv4,
                             ksize=2,
                             stride=2,
                             scope_name='pool3')
+        print_info(pool3)
 
         conv5 = conv_op(inputs=pool3,
                         filters=512,
                         ksize=3,
                         stride=1,
                         scope_name='conv5')
+        print_info(conv5)
 
         conv6 = conv_op(inputs=conv5,
                         filters=512,
                         ksize=3,
                         stride=1,
                         scope_name='conv6')
+        print_info(conv6)
 
         pool4 = max_pool_op(inputs=conv6,
                             ksize=2,
                             stride=2,
                             scope_name='pool4')
+        print_info(pool4)
 
         conv7 = conv_op(inputs=pool4,
                         filters=512,
                         ksize=3,
                         stride=1,
                         scope_name='conv7')
+        print_info(conv7)
 
         conv8 = conv_op(inputs=conv7,
                         filters=512,
                         ksize=3,
                         stride=1,
                         scope_name='conv8')
+        print_info(conv8)
 
         pool5 = max_pool_op(inputs=conv8,
                             ksize=2,
                             stride=2,
                             scope_name='pool5')
+        print_info(pool5)
 
 
         # ---------------------------------------------------
@@ -159,10 +176,12 @@ class Model(object):
         fc1 = connect_op(inputs=fc1_input,
                          dim_out=4096,
                               scope_name='fc1')
+        print_info(fc1)
         # ---------------------------------------------------
         fc2 = connect_op(inputs=fc1,
                          dim_out=4096,
                               scope_name='fc2')
+        print_info(fc2)
         # ---------------------------------------------------
         self.logits = connect_op(inputs=fc2,
                                  dim_out=self.n_classes,
@@ -170,7 +189,6 @@ class Model(object):
                                       scope_name='logits')
 
     def loss_op(self):
-        print('loss')
         with tf.name_scope('loss'):
             entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.label)
             self.loss = tf.reduce_mean(entropy, name='loss_op')
