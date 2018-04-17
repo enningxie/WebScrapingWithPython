@@ -172,7 +172,7 @@ class Model(object):
 
         # ---------------------------------------------------
         tmp_shape = pool5.get_shape().as_list()
-        fc1_input = tf.reshape(self.img, [-1, tmp_shape[1] * tmp_shape[2] * tmp_shape[3]])
+        fc1_input = tf.reshape(pool5, [-1, tmp_shape[1] * tmp_shape[2] * tmp_shape[3]])
         fc1 = connect_op(inputs=fc1_input,
                          dim_out=4096,
                               scope_name='fc1')
