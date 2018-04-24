@@ -6,6 +6,7 @@ import pandas as pd
 from PIL import Image
 import tensorflow as tf
 import matplotlib.image as mpimg
+from collections import defaultdict
 import numpy as np
 from sklearn.model_selection import train_test_split
 
@@ -20,11 +21,11 @@ def parse():
     parser.add_argument('--new_annotations_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/annotations')
     parser.add_argument('--class_path',
-                        default='/var/Data/xz/butterfly/classes_new_03.csv')
+                        default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/classes_new_03.csv')
     parser.add_argument('--image_path',
                         default='/home/enningxie/Documents/DataSets/butterfly_/butt_train/train_set/JPEGImages')
     parser.add_argument('--image_for_classify',
-                        default='/var/Data/xz/butterfly/data_augmentation')
+                        default='/home/enningxie/Documents/DataSets/butterfly_/process_data')
     return parser.parse_args()
 
 
@@ -131,7 +132,9 @@ def _create_feature_label(path):
 def _parse_cell_image(filename, label):
     image_string = tf.read_file(filename)
     image_decoded = tf.image.decode_png(image_string)
-    image_resized = tf.image.resize_images(image_decoded, [224, 224])
+    # xz normal
+    image_normaled = tf.divide(image_decoded, 255)
+    image_resized = tf.image.resize_images(image_normaled, [224, 224])
     return image_resized, label
 
 
@@ -146,6 +149,7 @@ def _create_dataset(data, label, batch_size):
 
 def process_data(batch_size):
     X, Y = _create_feature_label(s.image_for_classify)
+    # to-do
     x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=RANDOM_STATE)
 
     # # print(len(test_data[0]))
@@ -155,7 +159,16 @@ def process_data(batch_size):
     return train_dataset, test_dataset
 
 
+def explore_data(path):
+    count_dict = defaultdict(int)
+    for file in os.listdir(path):
+        count_dict[file[:11]] += 1
+    result_list = []
+    for key, value in count_dict.items():
+        result_list.append((key, value))
+    print(result_list)
+    print(len(result_list))
+
 
 if __name__ == '__main__':
     pass
-
