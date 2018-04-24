@@ -250,8 +250,8 @@ class Model(object):
         except tf.errors.OutOfRangeError:
             pass
 
-        print('Accuracy at epoch {0}: {1} '.format(epoch, accuracy_batch))
-        print('Accuracy at epoch {0}: {1} '.format(epoch, total_correct_preds/n_batches))
+        print('Accuracy at epoch {0}: {1} '.format(epoch, accuracy_batch / self.batch_size))
+        print('Accuracy at epoch {0}: {1} '.format(epoch, total_correct_preds/(n_batches*self.batch_size)))
 
     def train(self, n_epochs):
         '''
