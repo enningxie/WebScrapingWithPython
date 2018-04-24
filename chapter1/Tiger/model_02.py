@@ -202,7 +202,7 @@ class VGG16(object):
 
         for op in op_list:
             print_info(op)
-            print("let's training.")
+        print("let's training.")
 
     def loss_op(self):
         '''
@@ -270,7 +270,7 @@ class VGG16(object):
         except tf.errors.OutOfRangeError:
             pass
         saver.save(sess, 'checkpoints/vgg16/vgg16_model', step)
-        print('Average loss at epoch {0}: {1}'.format(epoch, total_loss/(n_batches*self.batch_size)))
+        print('Average loss at epoch {0}: {1}'.format(epoch, total_loss/n_batches))
         print('Took: {0} seconds.'.format(time.time() - start_time))
         return step
 
@@ -279,15 +279,17 @@ class VGG16(object):
         sess.run(init)
         self.training = False
         total_correct_preds = 0
+        n_batches = 0
         try:
             while True:
                 accuracy_batch, _, summaries = sess.run([self.accuracy, self.accuracy_op, self.summary_op])
                 writer.add_summary(summaries, global_step=step)
                 total_correct_preds += accuracy_batch
+                n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
 
-        print('Accuracy at epoch {0}: {1}'.format(epoch, total_correct_preds/self.n_test))
+        print('Accuracy at epoch {0}: {1}'.format(epoch, total_correct_preds/(n_batches*self.batch_size)))
         print('Took: {0} seconds.'.format(time.time() - start_time))
 
     def train(self, n_epochs):
@@ -305,6 +307,7 @@ class VGG16(object):
             step = self.global_step.eval()
 
             for epoch in range(n_epochs):
+                sess.run(tf.local_variables_initializer())
                 step = self.train_one_epoch(sess, saver, self.train_init, writer, epoch, step)
                 self.eval_once(sess, self.test_init, writer, epoch, step)
         writer.close()
