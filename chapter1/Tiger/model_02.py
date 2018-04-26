@@ -263,14 +263,14 @@ class VGG16(object):
                 _, l, summaries = sess.run([self.opt, self.loss, self.summary_op])
                 writer.add_summary(summaries, global_step=step)
                 if (step + 1) % self.skip_step == 0:
-                    print('Loss at step {0}： {1}'.format(step, l))
+                    print('Loss at step {0}： {1}'.format(step+1, l))
                 step += 1
                 total_loss += l
                 n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
         saver.save(sess, 'checkpoints/vgg16/vgg16_model', step)
-        print('Average loss at epoch {0}: {1}'.format(epoch, total_loss/n_batches))
+        print('Average loss at epoch {0}: {1}'.format(epoch+1, total_loss/n_batches))
         print('Took: {0} seconds.'.format(time.time() - start_time))
         return step
 
@@ -289,7 +289,7 @@ class VGG16(object):
         except tf.errors.OutOfRangeError:
             pass
 
-        print('Accuracy at epoch {0}: {1}'.format(epoch, total_correct_preds/(n_batches*self.batch_size)))
+        print('Accuracy at epoch {0}: {1}'.format(epoch+1, total_correct_preds/n_batches))
         print('Took: {0} seconds.'.format(time.time() - start_time))
 
     def train(self, n_epochs):
