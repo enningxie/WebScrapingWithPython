@@ -69,7 +69,7 @@ def resnet_layer(inputs,
 class Resnet(object):
     def __init__(self):
         self.lr = 0.001
-        self.batch_size = 128
+        self.batch_size = 32
         self.keep_prob = tf.constant(0.75)
         self.global_step = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
         self.n_classes = 94
