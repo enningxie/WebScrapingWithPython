@@ -189,7 +189,7 @@ class Resnet(object):
                 n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
-        saver.save(sess, 'checkpoints/vgg16/vgg16_model', step)
+        saver.save(sess, 'checkpoints/resnet_v1/resnet_v1_model', step)
         print('Average loss at epoch {0}: {1}'.format(epoch+1, total_loss/n_batches))
         print('Took: {0} seconds.'.format(time.time() - start_time))
         return step
@@ -214,13 +214,13 @@ class Resnet(object):
 
     def train(self, n_epochs):
         utils.make_dir('checkpoints')
-        utils.make_dir('checkpoints/vgg16')
-        writer = tf.summary.FileWriter('./graphs/vgg16', tf.get_default_graph())
+        utils.make_dir('checkpoints/resnet_v1')
+        writer = tf.summary.FileWriter('./graphs/resnet_v1', tf.get_default_graph())
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/vgg16/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/resnet_v1/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
@@ -234,6 +234,6 @@ class Resnet(object):
 
 
 if __name__ == '__main__':
-    vgg16 = Resnet()
-    vgg16.build()
-    vgg16.train(n_epochs=30)
+    resnet_v1 = Resnet()
+    resnet_v1.build()
+    resnet_v1.train(n_epochs=30)
