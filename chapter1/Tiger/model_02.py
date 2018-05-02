@@ -39,6 +39,7 @@ class VGG16(object):
             inputs=self.img,
             filters=64,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_1'
@@ -59,6 +60,7 @@ class VGG16(object):
             inputs=pool_1,
             filters=128,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_2'
@@ -79,6 +81,7 @@ class VGG16(object):
             inputs=pool_2,
             filters=256,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_3'
@@ -90,6 +93,7 @@ class VGG16(object):
             inputs=conv_3,
             filters=256,
             kernel_size=(3, 3),
+            padding='same',
             activation=tf.nn.relu,
             strides=(1, 1),
             name='conv_4'
@@ -110,6 +114,7 @@ class VGG16(object):
             inputs=pool_3,
             filters=512,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_5'
@@ -121,6 +126,7 @@ class VGG16(object):
             inputs=conv_5,
             filters=512,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_6'
@@ -141,6 +147,7 @@ class VGG16(object):
             inputs=pool_4,
             filters=512,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_7'
@@ -152,6 +159,7 @@ class VGG16(object):
             inputs=conv_7,
             filters=512,
             kernel_size=(3, 3),
+            padding='same',
             strides=(1, 1),
             activation=tf.nn.relu,
             name='conv_8'
@@ -176,7 +184,7 @@ class VGG16(object):
 
         fc_1 = tf.layers.dense(
             inputs=pool_5_reshape,
-            units=512,
+            units=1024,
             activation=tf.nn.relu,
             name='fc_1'
         )
@@ -202,7 +210,7 @@ class VGG16(object):
 
         for op in op_list:
             print_info(op)
-            print("let's training.")
+        print("-----------------------let's training.---------------------------")
 
     def loss_op(self):
         '''
