@@ -11,7 +11,7 @@ import os
 import cv2
 
 
-IMAGE_SIZE = 224
+IMAGE_SIZE = 299
 IMAGES = 4
 
 
@@ -26,7 +26,7 @@ def arg_parse():
     parser.add_argument('--test_convert', type=str,
                         default='/home/enningxie/Documents/DataSets/butterfly_/test_convert')
     parser.add_argument('--file_path', type=str, default='/var/Data/xz/butterfly/process_data')
-    parser.add_argument('--process_data', type=str, default='/var/Data/xz/butterfly/data_augmentation')
+    parser.add_argument('--process_data', type=str, default='/var/Data/xz/butterfly/data_augmentation_13')
     return parser.parse_args()
 
 
@@ -41,7 +41,7 @@ def img_file_path(path):
 # save img
 def img_save_op(img_data, img_label, path, step):
     for index, img in enumerate(img_data):
-        mpimg.imsave(os.path.join(path, img_label[index] + '_' + str(step) + '_' + str(index) + '.png'), img)
+        mpimg.imsave(os.path.join(path, img_label[index] + '_' + str(step) + '_' + str(index) + '.jpg'), img)
     print('done.')
 
 

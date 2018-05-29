@@ -1,2 +1,5 @@
 .idea/
 chapter1/Tiger/__pycache__/
+
+chapter1/Tiger/graphs/
+chapter1/Tiger/checkpoints/

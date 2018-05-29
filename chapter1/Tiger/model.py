@@ -58,7 +58,7 @@ class Model(object):
         self.training = True
         self.skip_step = 5
         self.n_test = 20
-        self.batch_size = 256
+        self.batch_size = 128
         self.n_classes = 94
 
     def get_data(self):

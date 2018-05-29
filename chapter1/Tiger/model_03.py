@@ -1,4 +1,4 @@
-# 04/23
+# 05/01
 # xz
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -11,7 +11,61 @@ def print_info(t):
     print(t.op.name, ' ', t.get_shape().as_list())
 
 
-class VGG16(object):
+def resnet_layer(inputs,
+                 num_filters=16,
+                 kernel_size=3,
+                 strides=1,
+                 activation=True,
+                 batch_normalization=True,
+                 conv_first=True):
+    """2D Convolution-Batch Normalization-Activation stack builder
+
+    # Arguments
+        inputs (tensor): input tensor from input image or previous layer
+        num_filters (int): Conv2D number of filters
+        kernel_size (int): Conv2D square kernel dimensions
+        strides (int): Conv2D square stride dimensions
+        activation (string): activation name
+        batch_normalization (bool): whether to include batch normalization
+        conv_first (bool): conv-bn-activation (True) or
+            activation-bn-conv (False)
+
+    # Returns
+        x (tensor): tensor as input to the next layer
+    """
+    x = inputs
+    if conv_first:
+        x = tf.layers.conv2d(
+            inputs=x,
+            filters=num_filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding='same',
+            kernel_initializer=tf.keras.initializers.he_normal(),
+            kernel_regularizer=tf.keras.regularizers.l2(1e-4)
+        )
+        if batch_normalization:
+            x = tf.layers.batch_normalization(inputs=x)
+        if activation:
+            x = tf.nn.relu(x)
+    else:
+        if batch_normalization:
+            x = tf.layers.batch_normalization(inputs=x)
+        if activation:
+            x = tf.nn.relu(x)
+        x = tf.layers.conv2d(
+            inputs=x,
+            filters=num_filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding='same',
+            kernel_initializer=tf.keras.initializers.he_normal(),
+            kernel_regularizer=tf.keras.regularizers.l2(1e-4)
+        )
+    return x
+
+
+class Resnet(object):
     def __init__(self):
         self.lr = 0.001
         self.batch_size = 128
@@ -21,6 +75,7 @@ class VGG16(object):
         self.skip_step = 20  # size for verbose
         self.n_test = 10000  # test set num
         self.training = True
+        self.depth = 20
 
     def get_data(self):
         with tf.name_scope('data'):
@@ -32,186 +87,42 @@ class VGG16(object):
             self.test_init = iterator.make_initializer(test_data)
 
     def inference(self):
+        # Start model definition.
+        num_filters = 16
+        num_res_blocks = int((self.depth - 2) / 6)
 
-        op_list = []
+        x = resnet_layer(inputs=self.img)  # 1
+        # Instantiate the stack of residual units
+        for stack in range(3):
+            for res_block in range(num_res_blocks):
+                strides = 1
+                if stack > 0 and res_block == 0:  # first layer but not first stack
+                    strides = 2  # downsample
+                y = resnet_layer(inputs=x,
+                                 num_filters=num_filters,
+                                 strides=strides)
+                y = resnet_layer(inputs=y,
+                                 num_filters=num_filters,
+                                 activation=False)
+                if stack > 0 and res_block == 0:  # first layer but not first stack
+                    # linear projection residual shortcut connection to match
+                    # changed dims
+                    x = resnet_layer(inputs=x,
+                                     num_filters=num_filters,
+                                     kernel_size=1,
+                                     strides=strides,
+                                     activation=False,
+                                     batch_normalization=False)
+                x = tf.add(x, y)
+                x = tf.nn.relu(x)
+            num_filters *= 2
 
-        conv_1 = tf.layers.conv2d(
-            inputs=self.img,
-            filters=64,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_1'
-        )
-
-        op_list.append(conv_1)
-
-        pool_1 = tf.layers.max_pooling2d(
-            inputs=conv_1,
-            pool_size=(2, 2),
-            strides=(2, 2),
-            name='pool_1'
-        )
-
-        op_list.append(pool_1)
-
-        conv_2 = tf.layers.conv2d(
-            inputs=pool_1,
-            filters=128,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_2'
-        )
-
-        op_list.append(conv_2)
-
-        pool_2 = tf.layers.max_pooling2d(
-            inputs=conv_2,
-            pool_size=(2, 2),
-            strides=(2, 2),
-            name='pool_2'
-        )
-
-        op_list.append(pool_2)
-
-        conv_3 = tf.layers.conv2d(
-            inputs=pool_2,
-            filters=256,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_3'
-        )
-
-        op_list.append(conv_3)
-
-        conv_4 = tf.layers.conv2d(
-            inputs=conv_3,
-            filters=256,
-            kernel_size=(3, 3),
-            padding='same',
-            activation=tf.nn.relu,
-            strides=(1, 1),
-            name='conv_4'
-        )
-
-        op_list.append(conv_4)
-
-        pool_3 = tf.layers.max_pooling2d(
-            inputs=conv_4,
-            pool_size=(2, 2),
-            strides=(2, 2),
-            name='pool_3'
-        )
-
-        op_list.append(pool_3)
-
-        conv_5 = tf.layers.conv2d(
-            inputs=pool_3,
-            filters=512,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_5'
-        )
-
-        op_list.append(conv_5)
-
-        conv_6 = tf.layers.conv2d(
-            inputs=conv_5,
-            filters=512,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_6'
-        )
-
-        op_list.append(conv_6)
-
-        pool_4 = tf.layers.max_pooling2d(
-            inputs=conv_6,
-            pool_size=(2, 2),
-            strides=(2, 2),
-            name='pool_4'
-        )
-
-        op_list.append(pool_4)
-
-        conv_7 = tf.layers.conv2d(
-            inputs=pool_4,
-            filters=512,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_7'
-        )
-
-        op_list.append(conv_7)
-
-        conv_8 = tf.layers.conv2d(
-            inputs=conv_7,
-            filters=512,
-            kernel_size=(3, 3),
-            padding='same',
-            strides=(1, 1),
-            activation=tf.nn.relu,
-            name='conv_8'
-        )
-
-        op_list.append(conv_8)
-
-        pool_5 = tf.layers.max_pooling2d(
-            inputs=conv_8,
-            pool_size=(2, 2),
-            strides=(2, 2),
-            name='pool_5'
-        )
-
-        op_list.append(pool_5)
-
-        # ---------------------------------------------------
-
-        pool_5_reshape = tf.layers.flatten(pool_5, name='pool_5_reshape')
-
-        op_list.append(pool_5_reshape)
-
-        fc_1 = tf.layers.dense(
-            inputs=pool_5_reshape,
-            units=1024,
-            activation=tf.nn.relu,
-            name='fc_1'
-        )
-
-        op_list.append(fc_1)
-
-        fc_2 = tf.layers.dense(
-            inputs=fc_1,
-            units=512,
-            activation=tf.nn.relu,
-            name='fc_2'
-        )
-
-        op_list.append(fc_2)
-
-        self.logits = tf.layers.dense(
-            inputs=fc_2,
-            units=self.n_classes,
-            name='logits'
-        )
-
-        op_list.append(self.logits)
-
-        for op in op_list:
-            print_info(op)
-        print("-----------------------let's training.---------------------------")
-
+        # Add classifier on top.
+        # v1 does not use BN after last shortcut connection-ReLU
+        x = tf.layers.average_pooling2d(inputs=x, pool_size=8, strides=8)
+        y = tf.layers.Flatten()(x)
+        self.logits = tf.layers.dense(inputs=y, units=self.n_classes,
+                                      kernel_initializer=tf.keras.initializers.he_normal())
 
     def loss_op(self):
         '''
@@ -278,7 +189,7 @@ class VGG16(object):
                 n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
-        saver.save(sess, 'checkpoints/vgg16/vgg16_model', step)
+        saver.save(sess, 'checkpoints/resnet_v1/resnet_v1_model', step)
         print('Average loss at epoch {0}: {1}'.format(epoch+1, total_loss/n_batches))
         print('Took: {0} seconds.'.format(time.time() - start_time))
         return step
@@ -303,13 +214,13 @@ class VGG16(object):
 
     def train(self, n_epochs):
         utils.make_dir('checkpoints')
-        utils.make_dir('checkpoints/vgg16')
-        writer = tf.summary.FileWriter('./graphs/vgg16', tf.get_default_graph())
+        utils.make_dir('checkpoints/resnet_v1')
+        writer = tf.summary.FileWriter('./graphs/resnet_v1', tf.get_default_graph())
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/vgg16/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/resnet_v1/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
@@ -323,6 +234,6 @@ class VGG16(object):
 
 
 if __name__ == '__main__':
-    vgg16 = VGG16()
-    vgg16.build()
-    vgg16.train(n_epochs=30)
+    resnet_v1 = Resnet()
+    resnet_v1.build()
+    resnet_v1.train(n_epochs=30)
